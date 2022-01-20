@@ -14,12 +14,12 @@ function checksExistsUserAccount(request, response, next) {
   const { username } = request.header;
 
   const user = users.find((user) => users.username === username);
-  if (!verifyIfUserExists) {
+  if (!user) {
     return response.status(400).json({ error: "User not found!" })
   }
 
-  request.user = user
-  
+  request.user = user;
+
   return next();
 }
 
@@ -42,7 +42,10 @@ app.post('/users', (request, response) => {
 });
 
 app.get('/todos', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { user } = request;
+
+    return response.status(200).json(user.todos);
+
 });
 
 app.post('/todos', checksExistsUserAccount, (request, response) => {
