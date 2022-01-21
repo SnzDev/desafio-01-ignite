@@ -9,11 +9,12 @@ app.use(express.json());
 
 const users = [];
 
-//MIDDLEWARE
+//MIDDLEWARES
 function checksExistsUserAccount(request, response, next) {
-  const { username } = request.header;
+  const { username } = request.headers;
 
-  const user = users.find((user) => users.username === username);
+  const user = users.find(user => user.username === username);
+
   if (!user) {
     return response.status(400).json({ error: "User not found!" })
   }
@@ -23,9 +24,24 @@ function checksExistsUserAccount(request, response, next) {
   return next();
 }
 
+function checkExistsIdTodo(request, response, next) {
+  const { id } = request.params;
+  const { user } = request;
+
+  const todo = user.todos.find(todo => todo.id === id);
+  if (!todo) {
+    return response.status(400).json({ error: "Todo don't exists" });
+  }
+
+  request.todo = todo;
+
+  return next();
+}
+
 app.post('/users', (request, response) => {
   const { name, username } = request.body;
   const verifyIfUserExists = users.some((user) => user.username === username);
+
   if (verifyIfUserExists) {
     return response.status(400).json({ error: "User already exists!" });
   }
@@ -64,26 +80,25 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
   return response.status(201).send()
 });
 
-app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
-  const { user } = request;
-  const { id } = request.params;
-
+app.put('/todos/:id', checksExistsUserAccount, checkExistsIdTodo, (request, response) => {
+  const { todo } = request;
   const { title, deadline } = request.body;
 
-  const todo = user.todos.find((todo) => todo.id === id);
-
-  if (!todo) {
-    return response.status(400).json({ error: "Todo don't exists!" });
-  }
 
   todo.title = title;
   todo.deadline = deadline;
-  
+
   return response.status(201).send();
 });
 
-app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+app.patch('/todos/:id/done',checksExistsUserAccount, checkExistsIdTodo,  (request, response) => {
+  const { todo } = request;
+
+  todo.finalized = true;
+
+  return response.status(201).send();
+
+
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
