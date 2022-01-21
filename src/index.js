@@ -30,7 +30,7 @@ function checkExistsIdTodo(request, response, next) {
 
   const todo = user.todos.find(todo => todo.id === id);
   if (!todo) {
-    return response.status(400).json({ error: "Todo don't exists" });
+    return response.status(404).json({ error: "Not Found" });
   }
 
   request.todo = todo;
@@ -91,7 +91,7 @@ app.put('/todos/:id', checksExistsUserAccount, checkExistsIdTodo, (request, resp
   todo.title = title;
   todo.deadline = new Date(deadline);
 
-  return response.status(201).send();
+  return response.status(201).json(todo);
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, checkExistsIdTodo, (request, response) => {
@@ -99,7 +99,7 @@ app.patch('/todos/:id/done', checksExistsUserAccount, checkExistsIdTodo, (reques
 
   todo.done = true;
 
-  return response.status(201).send();
+  return response.status(201).json(todo);
 
 
 });
@@ -108,7 +108,7 @@ app.delete('/todos/:id', checksExistsUserAccount, checkExistsIdTodo, (request, r
   const { user, todo } = request;
   user.todos.splice(todo, 1);
 
-  return response.status(200).send();
+  return response.status(204).send();
 });
 
 module.exports = app;
