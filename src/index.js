@@ -91,7 +91,7 @@ app.put('/todos/:id', checksExistsUserAccount, checkExistsIdTodo, (request, resp
   return response.status(201).send();
 });
 
-app.patch('/todos/:id/done',checksExistsUserAccount, checkExistsIdTodo,  (request, response) => {
+app.patch('/todos/:id/done', checksExistsUserAccount, checkExistsIdTodo, (request, response) => {
   const { todo } = request;
 
   todo.finalized = true;
@@ -101,8 +101,11 @@ app.patch('/todos/:id/done',checksExistsUserAccount, checkExistsIdTodo,  (reques
 
 });
 
-app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+app.delete('/todos/:id', checksExistsUserAccount, checkExistsIdTodo, (request, response) => {
+  const { user, todo } = request;
+  user.todos.splice(todo, 1);
+
+  return response.status(200).send();
 });
 
 module.exports = app;
