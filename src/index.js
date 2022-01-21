@@ -46,14 +46,16 @@ app.post('/users', (request, response) => {
     return response.status(400).json({ error: "User already exists!" });
   }
 
-  users.push({
+  const usersOperation = {
+    id: uuidv4(),
     name,
-    username,
-    id: uuidv4,
+    username,    
     todos: []
-  })
+  }
 
-  return response.status(201).send();
+  users.push(usersOperation)
+
+  return response.status(201).json(usersOperation);
 
 });
 
@@ -69,15 +71,16 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
   const { title, deadline } = request.body;
 
   const todosOperation = {
-    title,
-    deadline,
     id: uuidv4(),
-    finalized: false,
+    title,
+    deadline: new Date(deadline),
+    done: false,
+    created_at: new Date(),
   }
 
   user.todos.push(todosOperation);
 
-  return response.status(201).send()
+  return response.status(201).json(todosOperation);
 });
 
 app.put('/todos/:id', checksExistsUserAccount, checkExistsIdTodo, (request, response) => {
@@ -86,7 +89,7 @@ app.put('/todos/:id', checksExistsUserAccount, checkExistsIdTodo, (request, resp
 
 
   todo.title = title;
-  todo.deadline = deadline;
+  todo.deadline = new Date(deadline);
 
   return response.status(201).send();
 });
@@ -94,7 +97,7 @@ app.put('/todos/:id', checksExistsUserAccount, checkExistsIdTodo, (request, resp
 app.patch('/todos/:id/done', checksExistsUserAccount, checkExistsIdTodo, (request, response) => {
   const { todo } = request;
 
-  todo.finalized = true;
+  todo.done = true;
 
   return response.status(201).send();
 
